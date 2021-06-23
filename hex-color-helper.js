@@ -40,7 +40,7 @@ function onEdit(e){
         var cell = range.getCell(r + 1, c + 1);
         cell.setBackground(value);
         // cell.setFontColor(getInverseHex(value));
-        cell.setFontColor(value);
+        cell.setFontColor(shadeHex(value, -20));
       }
     }
   }
@@ -60,10 +60,8 @@ function isValidHex(hex) {
 
 /**
  * Get a hex colour code that is the inverse of the provided code.
- * Derived from stackoverflow.com/questions/9600295 with added
- * support for CSS shorthand hex notation.
  */
-function getInverseHex(hex) {
+function inverseHex(hex) {
   // expand shorthand colour
   hex = hex.replace(/^#(.)(.)(.)$/, '#$1$1$2$2$3$3');
   
@@ -76,3 +74,35 @@ function getInverseHex(hex) {
   // convert back to hex notation
   return '#' + ('000000' + inverse.toString(16)).slice(-6);
 };
+
+/**
+ * Shade a hex color code by a percentage.
+ * A postive amt will lighten.
+ * A negative amt will darken.
+ */
+function shadeHex(col,amt) {
+    var usePound = false;
+    if ( col[0] == "#" ) {
+        col = col.slice(1);
+        usePound = true;
+    }
+
+    var num = parseInt(col,16);
+
+    var r = (num >> 16) + amt;
+
+    if ( r > 255 ) r = 255;
+    else if  (r < 0) r = 0;
+
+    var b = ((num >> 8) & 0x00FF) + amt;
+
+    if ( b > 255 ) b = 255;
+    else if  (b < 0) b = 0;
+
+    var g = (num & 0x0000FF) + amt;
+
+    if ( g > 255 ) g = 255;
+    else if  ( g < 0 ) g = 0;
+
+    return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16);
+}
